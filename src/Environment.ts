@@ -17,4 +17,8 @@ export default class Environment {
     public static getDatabaseName(): string | undefined {
         return process.env.DB_NAME;
     }
+
+    public static getExpressHost(): number {
+        return parseInt(process.env.EXPRESS_HOST as string);
+    }
 }
