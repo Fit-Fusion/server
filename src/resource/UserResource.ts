@@ -3,7 +3,7 @@ import { DbUser, User } from '../abstracts/Interfaces.js';
 
 export default class UserResource {
     public async addUser(newUser: User) {
-        const defaultPassword = 'password';
+        const defaultPassword = '1234';
         const defaultPlanId = 1;
 
         await Database.runQuery(`
@@ -16,18 +16,20 @@ export default class UserResource {
                 date_of_birth,
                 areas_of_concentration, 
                 weight,
+                height,
                 plan_id,
                 role,
                 gender
             ) VALUES ( 
-                '${newUser.firstName}', 
-                '${newUser.lastName}', 
+                '${newUser.firstname}', 
+                '${newUser.lastname}', 
                 '${defaultPassword}',
                 '${newUser.email}',
                 '${newUser.phoneNumber}',
                 '${newUser.dateOfBirth}', 
                 '${newUser.areasOfConcentration}',
                 '${newUser.weight}',
+                '${newUser.height}',
                 '${defaultPlanId}',
                 '${newUser.role}',
                 '${newUser.gender}'
@@ -51,7 +53,7 @@ export default class UserResource {
         let user = await Database.runQuery(`
             SELECT u.*, css.subscription_status
             FROM user u
-            JOIN clientSubscriptionStatus css ON u.id = css.user_id
+            JOIN clientSubscriptionStatus css ON u.id = css.client_id
             WHERE u.id = ${id}`
         );
 
@@ -81,7 +83,7 @@ export default class UserResource {
         } = user;
         
         await Database.runQuery(`
-            UPDATE Client 
+            UPDATE User 
             SET
                 firstname = '${firstname}',
                 lastname = '${lastname}',
@@ -104,5 +106,20 @@ export default class UserResource {
         `);  
 
         return user[0];
+    }
+
+    public async updateUserSubscriptionStatus(user: User) {
+        const { id } = await this.getUserByEmail(user.email);
+        const defaultStatus = 'Inactive';
+
+        await Database.runQuery(`
+            INSERT INTO clientSubscriptionStatus(
+                client_id,
+                subscription_status
+            ) VALUES (
+                '${id}',
+                '${defaultStatus}'
+            )
+        `);
     }
 }

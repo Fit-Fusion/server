@@ -5,20 +5,20 @@ export default class ClassResource {
     public async getClassesById(id: number): Promise<DbClass[]>  {
         let classes = await Database.runQuery(`
             SELECT 
-                c.date,
-                c.name,
-                c.start_time,
-                c.end_time,
-                u2.firstname AS trainer_firstname,
-                u2.lastname AS trainer_lastname
+                class.date,
+                class.name,
+                class.start_time,
+                class.end_time,
+                trainer.firstname AS trainer_firstname,
+                trainer.lastname AS trainer_lastname
             FROM 
-                user u1
+                user client
             JOIN 
-                classes c ON u1.areas_of_concentration = c.name
+                classes class ON client.areas_of_concentration = class.name
             JOIN 
-                user u2 ON c.trainer_id = u2.id AND u2.areas_of_concentration = u1.areas_of_concentration
+                user trainer ON class.trainer_id = trainer.id
             WHERE 
-                u1.id = ${id}`
+                client.id = ${id}`
         );   
         
         return classes as DbClass[]

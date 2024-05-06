@@ -1,13 +1,14 @@
 import { Role } from './Enum';
 
 export interface User {
-    firstName: string,
-    lastName: string,
+    firstname: string,
+    lastname: string,
     email: string,
     phoneNumber: string,
     dateOfBirth: string,
     areasOfConcentration: string,
     weight: string,
+    height: string
     role: Role.client | Role.trainer,
     gender: string
 }
@@ -21,6 +22,7 @@ export interface DbUser {
     date_of_birth: string,
     areas_of_concentration: string,
     weight: string,
+    height: string,
     plan_id: number,
     role: Role.client | Role.trainer,
     gender: string

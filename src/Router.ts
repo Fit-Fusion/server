@@ -142,6 +142,7 @@ export default class Router {
             try {
                 const newUser = req.body;
                 await this.userResource.addUser(newUser);
+                await this.userResource.updateUserSubscriptionStatus(newUser);
         
                 res.json({ message: 'User added successfully' });
             } catch (error) {
