@@ -2,7 +2,7 @@ import Database from '../Database.js';
 import { DbUser, User } from '../abstracts/Interfaces.js';
 
 export default class UserResource {
-    public async addUser(newUser: User) {
+    public async addUser(newUser: User): Promise<void> {
         const defaultPassword = '1234';
         const defaultPlanId = 1;
 
@@ -13,8 +13,8 @@ export default class UserResource {
                 password, 
                 email, 
                 phone_number, 
-                date_of_birth,
-                areas_of_concentration, 
+                age,
+                area_of_concentration, 
                 weight,
                 height,
                 plan_id,
@@ -26,8 +26,8 @@ export default class UserResource {
                 '${defaultPassword}',
                 '${newUser.email}',
                 '${newUser.phoneNumber}',
-                '${newUser.dateOfBirth}', 
-                '${newUser.areasOfConcentration}',
+                '${newUser.age}', 
+                '${newUser.areaOfConcentration}',
                 '${newUser.weight}',
                 '${newUser.height}',
                 '${defaultPlanId}',
@@ -37,7 +37,7 @@ export default class UserResource {
         `)
     }
 
-    public async deleteUserById(id: number) {
+    public async deleteUser(id: number) {
         await Database.runQuery(`DELETE FROM User WHERE id = ${id}`);
     }
 
@@ -49,12 +49,32 @@ export default class UserResource {
         return user as DbUser;
     }
 
-    public async getUserProfileDataById(id: number): Promise<DbUser>  {
+    public async getClientProfileDataById(id: number): Promise<DbUser>  {
         let user = await Database.runQuery(`
             SELECT u.*, css.subscription_status
             FROM user u
-            JOIN clientSubscriptionStatus css ON u.id = css.client_id
+                JOIN clientSubscriptionStatus css ON u.id = css.client_id
             WHERE u.id = ${id}`
+        );
+
+        return user as DbUser;
+    }
+
+    public async getTrainerProfileDataById(id: number): Promise<DbUser>  {
+        let user = await Database.runQuery(`
+            SELECT *
+            FROM user
+            WHERE role = 'trainer' AND id = ${id}`
+        );
+
+        return user as DbUser;
+    }
+
+    public async getAdminProfileDataById(id: number): Promise<DbUser>  {
+        let user = await Database.runQuery(`
+            SELECT *
+            FROM user
+            WHERE role = 'admin' AND id = ${id}`
         );
 
         return user as DbUser;
@@ -68,17 +88,15 @@ export default class UserResource {
         return users as DbUser[];
     }
 
-    public async updateUser(user: DbUser) {
+    public async updateUserProfileData(user: DbUser) {
         const { 
             id, 
             firstname, 
             lastname, 
-            email, 
             phone_number, 
-            date_of_birth, 
-            areas_of_concentration, 
-            weight, 
-            plan_id,
+            age, 
+            weight,
+            height,
             gender
         } = user;
         
@@ -87,14 +105,52 @@ export default class UserResource {
             SET
                 firstname = '${firstname}',
                 lastname = '${lastname}',
-                email = '${email}',
                 phone_number = '${phone_number}',
-                date_of_birth = '${date_of_birth}',
-                areas_of_concentration = '${areas_of_concentration}',
+                age = '${age}',
                 weight = '${weight}',
-                plan_id = '${plan_id}',
+                height = '${height}',
                 gender = '${gender}'
 
+            WHERE id = ${id}
+        `);
+    }
+
+    public async updateAdminProfileData(admin: any) {
+        const { 
+            id, 
+            firstname, 
+            lastname, 
+            phone_number,  
+            email,
+            password
+        } = admin;
+        
+        await Database.runQuery(`
+            UPDATE User 
+            SET
+                firstname = '${firstname}',
+                lastname = '${lastname}',
+                phone_number = '${phone_number}',
+                email = '${email}',
+                password = '${password}'
+
+            WHERE id = ${id}
+        `);
+    }
+
+    public async updateUserEmailPassword(user: any) {
+        const { 
+            id, 
+            email,
+            password
+        } = user;
+        
+        await Database.runQuery(`
+            UPDATE User 
+            SET
+                email = '${email}',
+                password = '${password}'
+                
             WHERE id = ${id}
         `);
     }

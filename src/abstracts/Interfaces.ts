@@ -5,11 +5,11 @@ export interface User {
     lastname: string,
     email: string,
     phoneNumber: string,
-    dateOfBirth: string,
-    areasOfConcentration: string,
+    age: number,
+    areaOfConcentration: string,
     weight: string,
     height: string
-    role: Role.client | Role.trainer,
+    role: Role.client | Role.trainer | Role.admin,
     gender: string
 }
 
@@ -19,12 +19,12 @@ export interface DbUser {
     lastname: string,
     email: string,
     phone_number: string,
-    date_of_birth: string,
-    areas_of_concentration: string,
+    age: number,
+    area_of_concentration: string,
     weight: string,
     height: string,
     plan_id: number,
-    role: Role.client | Role.trainer,
+    role: Role.client | Role.trainer | Role.admin,
     gender: string
 }
 

@@ -65,13 +65,55 @@ export default class Router {
             }
         });
 
-        this.app.get('/users/client-profile/:id', async (req, res) => {
+        this.app.get('/users', async (req, res) => {
             try {
-                const userId = parseInt(req.params.id);
-                let user = await this.userResource.getUserProfileDataById(userId);
+                let users = await this.userResource.getUsers();
         
                 res.json({
-                    user
+                    users
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
+        this.app.get('/users/profile/client/:id', async (req, res) => {
+            try {
+                const clientId = parseInt(req.params.id);
+                let client = await this.userResource.getClientProfileDataById(clientId);
+                
+                res.json({
+                    client
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+        
+        this.app.get('/users/profile/trainer/:id', async (req, res) => {
+            try {
+                const trainerId = parseInt(req.params.id);
+                let trainer = await this.userResource.getTrainerProfileDataById(trainerId);
+        
+                res.json({
+                    trainer
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
+        this.app.get('/users/profile/admin/:id', async (req, res) => {
+            try {
+                const adminId = parseInt(req.params.id);
+
+                let admin = await this.userResource.getAdminProfileDataById(adminId);
+        
+                res.json({
+                    admin
                 });
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -108,13 +150,40 @@ export default class Router {
             }
         });
 
-        this.app.get('/classes/client-profile/:id', async (req, res) => {
+        this.app.get('/classes', async (req, res) => {
             try {
-                const classId = parseInt(req.params.id);
-                let classes = await this.classResource.getClassesById(classId);
+                let classes = await this.classResource.getClasses();
         
                 res.json({
                     classes
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
+        this.app.get('/classes/profile/client/:id', async (req, res) => {
+            try {
+                const clientId = parseInt(req.params.id);
+                let clientClasses = await this.classResource.getClientClassesById(clientId);
+        
+                res.json({
+                    clientClasses
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
+        this.app.get('/classes/profile/trainer/:id', async (req, res) => {
+            try {
+                const trainerId = parseInt(req.params.id);
+                let trainerClasses = await this.classResource.getTrainerClassesById(trainerId);
+        
+                res.json({
+                    trainerClasses
                 });
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -150,6 +219,18 @@ export default class Router {
                 res.status(500).json({ error: 'An error occurred while posting data' });
             }
         });
+
+        this.app.post('/class', async (req, res) => {
+            try {
+                const newClass = req.body;
+                await this.classResource.addClass(newClass);
+        
+                res.json({ message: 'Class added successfully' });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while posting data' });
+            }
+        });
     }
 
     private setPutRoutes() {
@@ -159,18 +240,73 @@ export default class Router {
                 const updatedUser = req.body;
                 updatedUser.id = userId;
         
-                this.userResource.updateUser(updatedUser);
+                this.userResource.updateUserProfileData(updatedUser);
         
                 res.json({ message: 'User updated successfully', user: updatedUser });
             } catch (error) {
                 console.error('Error Posting data:', error);
-                res.status(500).json({ error: 'An error occurred while posting data' });
+                res.status(500).json({ error: 'An error occurred while updating user' });
+            }
+        });
+
+        this.app.put('/users/admin/:id', (req, res) => {
+            try {
+                const adminId = parseInt(req.params.id);
+                const updatedAdmin = req.body;
+                updatedAdmin.id = adminId;
+        
+                this.userResource.updateAdminProfileData(updatedAdmin);
+        
+                res.json({ message: 'User updated successfully', admin: updatedAdmin });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while updating admin' });
+            }
+        });
+
+        this.app.put('/reset-email-password/users/:id', (req, res) => {
+            try {
+                const userId = parseInt(req.params.id);
+                const updatedUser = req.body;
+                updatedUser.id = userId;
+        
+                this.userResource.updateUserEmailPassword(updatedUser);
+        
+                res.json({ message: 'User updated successfully', user: updatedUser });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while updating user' });
+            }
+        });
+
+        this.app.put('/classes/:id', async (req, res) => {
+            try {
+                const classId = parseInt(req.params.id);
+                const updatedClass = req.body;
+                updatedClass.id = classId;
+        
+                await this.classResource.updateClass(updatedClass);
+        
+                res.json({ message: 'Class updated successfully', class: updatedClass });
+            } catch (error) {
+                console.error('Error updating class:', error);
+                res.status(500).json({ error: 'An error occurred while updating class' });
             }
         });
     }
 
     private setDeleteRoutes() {
+        this.app.delete('/classes/:id', async (req, res) => {
+            try {
+                const classId = parseInt(req.params.id);
+                await this.classResource.deleteClass(classId);
         
+                res.json({ message: 'Class deleted successfully' });
+            } catch (error) {
+                console.error('Error deleting class:', error);
+                res.status(500).json({ error: 'An error occurred while deleting class' });
+            }
+        });
     }
 
 }

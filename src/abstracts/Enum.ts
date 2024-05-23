@@ -1,6 +1,7 @@
 export enum Role {
     client = 'client',
-    trainer = 'trainer'
+    trainer = 'trainer',
+    admin = 'admin'
 }
 
 export enum RequestMethod {
