@@ -2,11 +2,14 @@ import { Express } from 'express';
 import UserResource from './resource/UserResource.js';
 import Resource from './resource/Resource.js';
 import ClassResource from './resource/ClassResource.js';
+import ReviewResource from './resource/ReviewResource.js';
+
 
 export default class Router {
     private app: Express;
     private userResource = new UserResource();
     private classResource = new ClassResource();
+    private reviewResource = new ReviewResource();
     private resource = new Resource();
 
     constructor(app: Express) {
@@ -204,6 +207,19 @@ export default class Router {
             }
         });
 
+        this.app.get('/reviews', async (req, res) => {
+            try {
+                let reviews = await this.reviewResource.getReviews();
+        
+                res.json({
+                    reviews
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
     }
 
     private setPostRoutes() {
@@ -226,6 +242,18 @@ export default class Router {
                 await this.classResource.addClass(newClass);
         
                 res.json({ message: 'Class added successfully' });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while posting data' });
+            }
+        });
+
+        this.app.post('/review', async (req, res) => {
+            try {
+                const newReview = req.body;
+                await this.reviewResource.addReview(newReview);
+        
+                res.json({ message: 'Review added successfully' });
             } catch (error) {
                 console.error('Error Posting data:', error);
                 res.status(500).json({ error: 'An error occurred while posting data' });
@@ -308,5 +336,4 @@ export default class Router {
             }
         });
     }
-
 }

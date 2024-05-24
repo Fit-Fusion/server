@@ -3,10 +3,3 @@ export enum Role {
     trainer = 'trainer',
     admin = 'admin'
 }
-
-export enum RequestMethod {
-    get = 'get',
-    post = 'post',
-    put = 'put',
-    delete = 'delete'
-}
