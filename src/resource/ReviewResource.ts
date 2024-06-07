@@ -27,4 +27,10 @@ export default class ReviewResource {
 
         return reviews as DbReview[];
     }
+
+    public async deleteReview(reviewId: number): Promise<void> {
+        await Database.runQuery(`
+            DELETE FROM review WHERE id = ${reviewId};
+        `);
+    }
 }

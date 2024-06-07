@@ -49,6 +49,22 @@ export default class UserResource {
         return user as DbUser;
     }
 
+    public async getTotalUsers(): Promise<number> {
+        const totalUsers: any = await  Database.runQuery(`
+            SELECT COUNT(*) as total FROM User;
+        `);
+
+        return totalUsers[0].total;
+    }
+
+    public async getTotalTrainers(): Promise<number> {
+        const totalTrainers: any = await Database.runQuery(`
+            SELECT COUNT(*) as total FROM User where role='trainer';
+        `);
+
+        return totalTrainers[0].total;
+    }
+
     public async getClientProfileDataById(id: number): Promise<DbUser>  {
         let user = await Database.runQuery(`
             SELECT u.*, css.subscription_status
@@ -114,6 +130,41 @@ export default class UserResource {
             WHERE id = ${id}
         `);
     }
+    
+    public async updateClient(client: DbUser){
+        const  {
+            id,
+            firstname,
+            lastname,
+            gender,
+            email,
+            phone_number,
+            age,
+            area_of_concentration,
+            role,
+            weight,
+            height
+        } = client;
+
+        await Database.runQuery(`
+            UPDATE User 
+            SET
+                firstname = '${firstname}',
+                lastname = '${lastname}',
+                phone_number = '${phone_number}',
+                email = '${email}',
+                area_of_concentration = '${area_of_concentration}',
+                role = '${role}',
+                age = '${age}',
+                weight = '${weight}',
+                height = '${height}',
+                gender = '${gender}'
+
+            WHERE id = ${id}
+        `);
+    }
+
+
 
     public async updateAdminProfileData(admin: any) {
         const { 

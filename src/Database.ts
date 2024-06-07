@@ -17,13 +17,11 @@ export default class Database {
         });
 
         this.connection.connect();
-
         return this.connection;
     }
 
     public static async runQuery<T>(query: string): Promise<T> {
         const connection = Database.getConnection();
-
         return new Promise<T>((resolve, reject) => {
             connection.query(query, (err: any, results: T | PromiseLike<T>) => {
                 if (err) {

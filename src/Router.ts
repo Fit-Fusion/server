@@ -4,7 +4,6 @@ import Resource from './resource/Resource.js';
 import ClassResource from './resource/ClassResource.js';
 import ReviewResource from './resource/ReviewResource.js';
 
-
 export default class Router {
     private app: Express;
     private userResource = new UserResource();
@@ -23,26 +22,21 @@ export default class Router {
         this.setDeleteRoutes();
     }
 
-    // private async handleAsyncError(func: Function, req: Request, res: Response) {
-    //     try {
-    //         await func(req, res);
-    //     } catch (error) {
-    //         console.error('Error:', error);
-    //         res.status(500).json({ error: 'An error occurred while processing the request' });
-    //     }
-    // }
-
     private setGetRoutes() {
         this.app.get('/', async (req, res) => {
             try {
-                let users = await this.userResource.getUsers();
+                let totalUsers = await this.userResource.getTotalUsers();
+                let totalTrainers = await this.userResource.getTotalTrainers();
                 let totalNumberOfYears = 10;
                 let areasOfConcentration = await this.resource.getAreasOfConcentration();
                 let subscriptions = await this.resource.getSubscriptions();
-                let reviews = await this.resource.getReviews();
+                let reviews = await this.reviewResource.getReviews();
+
+                console.log(totalUsers, totalTrainers)
 
                 res.json({
-                    users,
+                    totalUsers,
+                    totalTrainers,
                     totalNumberOfYears,
                     areasOfConcentration,
                     subscriptions,
@@ -220,6 +214,19 @@ export default class Router {
             }
         });
 
+        this.app.get('/messages', async (req, res) => {
+            try {
+                let messages = await this.resource.getMessages();
+        
+                res.json({
+                    messages
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                res.status(500).json({ error: 'An error occurred while fetching data' });
+            }
+        });
+
     }
 
     private setPostRoutes() {
@@ -259,6 +266,18 @@ export default class Router {
                 res.status(500).json({ error: 'An error occurred while posting data' });
             }
         });
+
+        this.app.post('/message', async (req, res) => {
+            try {
+                const newMessage = req.body;
+                await this.resource.addMessage(newMessage);
+        
+                res.json({ message: 'Message added successfully' });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while posting data' });
+            }
+        });
     }
 
     private setPutRoutes() {
@@ -269,6 +288,21 @@ export default class Router {
                 updatedUser.id = userId;
         
                 this.userResource.updateUserProfileData(updatedUser);
+        
+                res.json({ message: 'User updated successfully', user: updatedUser });
+            } catch (error) {
+                console.error('Error Posting data:', error);
+                res.status(500).json({ error: 'An error occurred while updating user' });
+            }
+        });
+
+        this.app.put('/admin/client/:id', (req, res) => {
+            try {
+                const userId = parseInt(req.params.id);
+                const updatedUser = req.body;
+                updatedUser.id = userId;
+        
+                this.userResource.updateClient(updatedUser);
         
                 res.json({ message: 'User updated successfully', user: updatedUser });
             } catch (error) {
@@ -333,6 +367,42 @@ export default class Router {
             } catch (error) {
                 console.error('Error deleting class:', error);
                 res.status(500).json({ error: 'An error occurred while deleting class' });
+            }
+        });
+
+        this.app.delete('/users/:id', async (req, res) => {
+            try {
+                const userId = parseInt(req.params.id);
+                await this.userResource.deleteUser(userId);
+        
+                res.json({ message: 'User deleted successfully' });
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                res.status(500).json({ error: 'An error occurred while deleting user' });
+            }
+        });
+
+        this.app.delete('/messages/:id', async (req, res) => {
+            try {
+                const messageId = parseInt(req.params.id);
+                await this.resource.deleteMessage(messageId);
+        
+                res.json({ message: 'Message deleted successfully' });
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                res.status(500).json({ error: 'An error occurred while deleting message' });
+            }
+        });
+
+        this.app.delete('/reviews/:id', async (req, res) => {
+            try {
+                const reviewId = parseInt(req.params.id);
+                await this.reviewResource.deleteReview(reviewId);
+        
+                res.json({ message: 'Review deleted successfully' });
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                res.status(500).json({ error: 'An error occurred while deleting review' });
             }
         });
     }

@@ -18,11 +18,31 @@ export default class Resource {
         return subscriptions as DbSubscription[];
     }
 
-    public async getReviews(): Promise<DbReview[]> {
-        const reviews = await Database.runQuery(`
-            SELECT * FROM review;`
+    public async addMessage(newMessage: any): Promise<any> {
+        await Database.runQuery(`
+            INSERT INTO Message (
+                sender_email,
+                message,   
+                date
+            ) VALUES ( 
+                '${newMessage.sender_email}',
+                '${newMessage.message}',
+                '${newMessage.date}'
+            );
+        `);
+    }
+
+    public async getMessages(): Promise<any> {
+        const messages = await Database.runQuery(`
+            SELECT * FROM message;`
         );
 
-        return reviews as DbReview[];
+        return messages;
+    }
+
+    public async deleteMessage(messageId: number): Promise<void> {
+        await Database.runQuery(`
+            DELETE FROM message WHERE id = ${messageId};
+        `);
     }
 }
